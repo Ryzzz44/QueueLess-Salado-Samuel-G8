@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}My Profile | QueueLess{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 text-center">
+                {% if profile_user.profile_photo %}
+                    <img src="{{ profile_user.profile_photo.url }}" alt="Profile photo"
+                         class="rounded-circle mb-3" style="width:120px;height:120px;object-fit:cover;">
+                {% else %}
+                    <div class="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width:120px;height:120px;font-size:3rem;">{{ profile_user.username|first|upper }}</div>
+                {% endif %}
+                <h3>{{ profile_user.get_full_name|default:profile_user.username }}</h3>
+                <span class="badge bg-primary mb-3">{{ profile_user.get_role_display }}</span>
+
+                <table class="table text-start">
+                    <tr><th>Username</th><td>{{ profile_user.username }}</td></tr>
+                    <tr><th>Email</th><td>{{ profile_user.email }}</td></tr>
+                    <tr><th>Contact Number</th><td>{{ profile_user.contact_number|default:"Not set" }}</td></tr>
+                    <tr><th>Member Since</th><td>{{ profile_user.date_joined|date:"F j, Y" }}</td></tr>
+                </table>
+                <a href="{% url 'profile_edit' %}" class="btn btn-primary">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
