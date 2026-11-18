@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Staff Dashboard | QueueLess{% endblock %}
+{% block content %}
+<h2>Welcome, {{ user.first_name|default:user.username }}!</h2>
+<p class="text-muted">Staff Dashboard</p>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm text-center"><div class="card-body">
+            <div class="display-6 fw-bold">{{ student_count }}</div>
+            <div class="text-muted small">Registered Students</div>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm"><div class="card-body">
+            <h5>Manage Queue</h5>
+            <p class="text-muted small">Call, skip, and complete queue numbers.</p>
+            <span class="badge bg-secondary">Coming in Sprint 4</span>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm"><div class="card-body">
+            <h5>Manage Services</h5>
+            <p class="text-muted small">Set which services are open for queuing.</p>
+            <span class="badge bg-secondary">Coming in Sprint 3</span>
+        </div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm"><div class="card-body">
+            <h5>My Profile</h5>
+            <p class="text-muted small">View and update your details.</p>
+            <a href="{% url 'profile' %}" class="btn btn-sm btn-primary">Go to Profile</a>
+        </div></div>
+    </div>
+</div>
+{% endblock %}
