@@ -1,29 +1,35 @@
 {% extends 'base.html' %}
 {% block title %}Student Dashboard | QueueLess{% endblock %}
 {% block content %}
-<h2>Welcome, {{ user.first_name|default:user.username }}!</h2>
-<p class="text-muted">Student Dashboard</p>
+<div class="ql-hero mb-4">
+    <div class="small text-uppercase opacity-75 fw-semibold">Student Dashboard</div>
+    <h2 class="fw-bold mb-1">Hi, {{ user.first_name|default:user.username }}! 👋</h2>
+    <p class="mb-0 opacity-75">Join a queue from anywhere and get notified when it's almost your turn.</p>
+</div>
 
-<div class="row g-3">
+<div class="row g-4">
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm"><div class="card-body">
-            <h5>Join a Queue</h5>
+        <div class="card card-hover h-100"><div class="card-body p-4">
+            <div class="ql-icon indigo"><i class="bi bi-ticket-perforated"></i></div>
+            <h5 class="fw-semibold">Join a Queue</h5>
             <p class="text-muted small">Choose a service (document request, payment, etc.) and get a queue number.</p>
-            <span class="badge bg-secondary">Coming in Sprint 3</span>
+            <span class="badge rounded-pill text-bg-light">Coming in Sprint 3</span>
         </div></div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm"><div class="card-body">
-            <h5>My Queue Status</h5>
+        <div class="card card-hover h-100"><div class="card-body p-4">
+            <div class="ql-icon cyan"><i class="bi bi-people"></i></div>
+            <h5 class="fw-semibold">My Queue Status</h5>
             <p class="text-muted small">See your queue number, your position, and the number now being served.</p>
-            <span class="badge bg-secondary">Coming in Sprint 3</span>
+            <span class="badge rounded-pill text-bg-light">Coming in Sprint 3</span>
         </div></div>
     </div>
     <div class="col-md-4">
-        <div class="card h-100 shadow-sm"><div class="card-body">
-            <h5>My Profile</h5>
+        <div class="card card-hover h-100"><div class="card-body p-4">
+            <div class="ql-icon green"><i class="bi bi-person-badge"></i></div>
+            <h5 class="fw-semibold">My Profile</h5>
             <p class="text-muted small">View and update your personal details.</p>
-            <a href="{% url 'profile' %}" class="btn btn-sm btn-primary">Go to Profile</a>
+            <a href="{% url 'profile' %}" class="btn btn-sm btn-primary">Go to Profile <i class="bi bi-arrow-right"></i></a>
         </div></div>
     </div>
 </div>
