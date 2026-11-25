@@ -14,7 +14,7 @@
     <div class="table-responsive">
         <table class="table align-middle mb-0">
             <thead class="table-light">
-                <tr><th>Service</th><th>Code</th><th>Office</th><th>Status</th><th class="text-end">Actions</th></tr>
+                <tr><th>Service</th><th>Code</th><th>Office</th><th>Waiting today</th><th>Status</th><th class="text-end">Actions</th></tr>
             </thead>
             <tbody>
             {% for service in services %}
@@ -25,6 +25,7 @@
                     </td>
                     <td><span class="badge text-bg-light">{{ service.code }}</span></td>
                     <td>{{ service.office }}</td>
+                    <td>{{ service.waiting_count }}</td>
                     <td>
                         <form method="post" action="{% url 'service_toggle' service.pk %}" class="m-0">
                             {% csrf_token %}
@@ -36,6 +37,7 @@
                         </form>
                     </td>
                     <td class="text-end text-nowrap">
+                        <a href="{% url 'queue_board' service.pk %}" class="btn btn-sm btn-primary"><i class="bi bi-list-ol"></i> Queue</a>
                         <a href="{% url 'service_update' service.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                         <a href="{% url 'service_delete' service.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
                     </td>
