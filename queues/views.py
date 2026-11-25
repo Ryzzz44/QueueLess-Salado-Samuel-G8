@@ -1,7 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Max
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -118,14 +117,12 @@ def join_queue(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 # Lock the service row so two students never get the same number.
-                Service.objects.select_for_update().get(pk=service.pk)
-                today = timezone.localdate()
-                last = QueueTicket.objects.filter(service=service, queue_date=today).aggregate(m=Max('number'))['m']
+                locked = Service.objects.select_for_update().get(pk=service.pk)
                 ticket = form.save(commit=False)
-                ticket.service = service
+                ticket.service = locked
                 ticket.student = request.user
-                ticket.queue_date = today
-                ticket.number = (last or 0) + 1
+                ticket.queue_date = timezone.localdate()
+                ticket.number = locked.next_ticket_number()
                 ticket.save()
             messages.success(request, f'You joined the queue! Your number is {ticket.ticket_code}.')
             return redirect('ticket_detail', pk=ticket.pk)

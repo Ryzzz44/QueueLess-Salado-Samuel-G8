@@ -17,6 +17,9 @@ class Service(models.Model):
     office = models.CharField(max_length=100, help_text='Office that handles this service, e.g. Registrar.')
     description = models.TextField(blank=True)
     is_open = models.BooleanField(default=True, help_text='Students can only join services that are open.')
+    # Daily ticket counter: numbers are never reused, even if a ticket is deleted.
+    last_ticket_number = models.PositiveIntegerField(default=0, editable=False)
+    last_ticket_date = models.DateField(null=True, blank=True, editable=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -34,6 +37,18 @@ class Service(models.Model):
 
     def todays_tickets(self):
         return self.tickets.filter(queue_date=timezone.localdate())
+
+    def next_ticket_number(self):
+        """Give out the next number for today. Call inside a transaction on a locked row."""
+        today = timezone.localdate()
+        if self.last_ticket_date != today:
+            self.last_ticket_date = today
+            self.last_ticket_number = 0
+        # Never go below a number already handed out today (safety for existing data).
+        highest = self.tickets.filter(queue_date=today).aggregate(m=models.Max('number'))['m'] or 0
+        self.last_ticket_number = max(self.last_ticket_number, highest) + 1
+        self.save(update_fields=['last_ticket_number', 'last_ticket_date'])
+        return self.last_ticket_number
 
     @property
     def waiting_count(self):
