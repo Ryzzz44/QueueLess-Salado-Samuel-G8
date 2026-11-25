@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Ticket {{ ticket.ticket_code }} | QueueLess{% endblock %}
+{% block extra_head %}{% if ticket.is_active %}<meta http-equiv="refresh" content="15">{% endif %}{% endblock %}
+{% block content %}
+<div class="card mx-auto overflow-hidden" style="max-width:560px;">
+    <div class="ql-hero rounded-0 text-center">
+        <div class="small text-uppercase opacity-75 fw-semibold">{{ ticket.service.name }}</div>
+        <div class="display-3 fw-bold">{{ ticket.ticket_code }}</div>
+        <span class="badge rounded-pill bg-white text-dark px-3 py-2">{{ ticket.status_label }}</span>
+    </div>
+    <div class="card-body p-4">
+        {% if ticket.status == 'WAITING' and ticket.is_today %}
+            <div class="row text-center mb-4">
+                <div class="col">
+                    <div class="small text-muted">Your position</div>
+                    <div class="fs-1 fw-bold" style="color:var(--ql-primary)">{{ ticket.position }}</div>
+                    <div class="small text-muted">{% if ticket.position == 1 %}You're next!{% else %}{{ ticket.position|add:"-1" }} ahead of you{% endif %}</div>
+                </div>
+                <div class="col border-start">
+                    <div class="small text-muted">Now serving</div>
+                    <div class="fs-1 fw-bold">{% if now_serving %}{{ now_serving.ticket_code }}{% else %}-{% endif %}</div>
+                </div>
+            </div>
+        {% elif ticket.status == 'SERVING' and ticket.is_today %}
+            <div class="alert alert-success text-center"><i class="bi bi-megaphone-fill"></i> It's your turn! Please proceed to <strong>{{ ticket.service.office }}</strong>.</div>
+        {% endif %}
+
+        <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Office</span><span>{{ ticket.service.office }}</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Purpose</span><span class="text-end">{{ ticket.purpose }}</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Date</span><span>{{ ticket.queue_date|date:"F j, Y" }}</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Joined at</span><span>{{ ticket.created_at|date:"g:i A" }}</span></li>
+            {% if user.role == 'STAFF' %}
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Student</span><span>{{ ticket.student.get_full_name|default:ticket.student.username }}</span></li>
+            {% endif %}
+        </ul>
+
+        {% if user == ticket.student %}
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                {% if ticket.status == 'WAITING' and ticket.is_today %}
+                    <a href="{% url 'ticket_edit' ticket.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i> Edit Purpose</a>
+                    <form method="post" action="{% url 'ticket_cancel' ticket.pk %}" class="m-0" onsubmit="return confirm('Cancel this ticket? You will lose your place in line.');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger"><i class="bi bi-x-circle"></i> Cancel Ticket</button>
+                    </form>
+                {% elif not ticket.is_active %}
+                    <a href="{% url 'ticket_delete' ticket.pk %}" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Remove from History</a>
+                {% endif %}
+                <a href="{% url 'my_tickets' %}" class="btn btn-light">Back to My Tickets</a>
+            </div>
+            {% if ticket.is_active %}<p class="text-center small text-muted mt-3 mb-0"><i class="bi bi-arrow-repeat"></i> This page refreshes every 15 seconds.</p>{% endif %}
+        {% else %}
+            <div class="text-center"><a href="{% url 'queue_board' ticket.service.pk %}" class="btn btn-light">Back to Queue</a></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
