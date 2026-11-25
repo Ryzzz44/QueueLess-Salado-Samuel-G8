@@ -1,42 +1,51 @@
 {% extends 'base.html' %}
 {% block title %}Staff Dashboard | QueueLess{% endblock %}
 {% block content %}
-<div class="ql-hero mb-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-    <div>
-        <div class="small text-uppercase opacity-75 fw-semibold">Staff Dashboard</div>
-        <h2 class="fw-bold mb-1">Welcome, {{ user.first_name|default:user.username }}!</h2>
-        <p class="mb-0 opacity-75">Manage services and keep the line moving.</p>
-    </div>
-    <div class="bg-white text-dark rounded-4 px-4 py-3 text-center">
-        <div class="display-6 fw-bold" style="color:var(--ql-primary)">{{ student_count }}</div>
-        <div class="small text-muted">Registered Students</div>
-    </div>
+<div class="ql-hero mb-4">
+    <div class="small text-uppercase opacity-75 fw-semibold">Staff Dashboard</div>
+    <h2 class="fw-bold mb-1">Welcome, {{ user.first_name|default:user.username }}!</h2>
+    <p class="mb-0 opacity-75">Manage services and keep the line moving.</p>
 </div>
 
+<div class="row g-4 mb-4">
+    <div class="col-6 col-md-3"><div class="card h-100 text-center"><div class="card-body">
+        <div class="display-6 fw-bold" style="color:var(--ql-primary)">{{ waiting_today }}</div><div class="small text-muted">Waiting today</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card h-100 text-center"><div class="card-body">
+        <div class="display-6 fw-bold text-success">{{ served_today }}</div><div class="small text-muted">Served today</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card h-100 text-center"><div class="card-body">
+        <div class="display-6 fw-bold">{{ services|length }}</div><div class="small text-muted">Services</div>
+    </div></div></div>
+    <div class="col-6 col-md-3"><div class="card h-100 text-center"><div class="card-body">
+        <div class="display-6 fw-bold">{{ student_count }}</div><div class="small text-muted">Registered Students</div>
+    </div></div></div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="fw-semibold mb-0">Today's queues</h5>
+    <a href="{% url 'service_manage_list' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-gear"></i> Manage Services</a>
+</div>
 <div class="row g-4">
-    <div class="col-md-4">
+    {% for s in services %}
+    <div class="col-md-6 col-lg-4">
         <div class="card card-hover h-100"><div class="card-body p-4">
-            <div class="ql-icon indigo"><i class="bi bi-list-ol"></i></div>
-            <h5 class="fw-semibold">Manage Queue</h5>
-            <p class="text-muted small">Call, skip, and complete queue numbers.</p>
-            <span class="badge rounded-pill text-bg-light">Coming next</span>
+            <div class="d-flex justify-content-between">
+                <h5 class="fw-semibold mb-0">{{ s.name }}</h5>
+                {% if s.is_open %}<span class="badge text-bg-success">Open</span>{% else %}<span class="badge text-bg-secondary">Closed</span>{% endif %}
+            </div>
+            <div class="small text-muted mb-3">{{ s.office }}</div>
+            <div class="d-flex justify-content-between small mb-3">
+                <span>Now serving: <strong>{% if s.now_serving %}{{ s.now_serving.ticket_code }}{% else %}-{% endif %}</strong></span>
+                <span>{{ s.waiting_count }} waiting</span>
+            </div>
+            <a href="{% url 'queue_board' s.pk %}" class="btn btn-sm btn-primary w-100"><i class="bi bi-list-ol"></i> Open Queue</a>
         </div></div>
     </div>
-    <div class="col-md-4">
-        <div class="card card-hover h-100"><div class="card-body p-4">
-            <div class="ql-icon amber"><i class="bi bi-gear"></i></div>
-            <h5 class="fw-semibold">Manage Services</h5>
-            <p class="text-muted small">Add services and open or close them for queuing.</p>
-            <a href="{% url 'service_manage_list' %}" class="btn btn-sm btn-primary">Manage Services <i class="bi bi-arrow-right"></i></a>
-        </div></div>
-    </div>
-    <div class="col-md-4">
-        <div class="card card-hover h-100"><div class="card-body p-4">
-            <div class="ql-icon green"><i class="bi bi-person-badge"></i></div>
-            <h5 class="fw-semibold">My Profile</h5>
-            <p class="text-muted small">View and update your details.</p>
-            <a href="{% url 'profile' %}" class="btn btn-sm btn-primary">Go to Profile <i class="bi bi-arrow-right"></i></a>
-        </div></div>
-    </div>
+    {% empty %}
+    <div class="col-12"><div class="card"><div class="card-body p-4 text-center text-muted">
+        No services yet. <a href="{% url 'service_create' %}">Add your first service</a>.
+    </div></div></div>
+    {% endfor %}
 </div>
 {% endblock %}

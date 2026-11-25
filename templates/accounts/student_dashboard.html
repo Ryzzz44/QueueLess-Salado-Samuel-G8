@@ -4,24 +4,42 @@
 <div class="ql-hero mb-4">
     <div class="small text-uppercase opacity-75 fw-semibold">Student Dashboard</div>
     <h2 class="fw-bold mb-1">Hi, {{ user.first_name|default:user.username }}! 👋</h2>
-    <p class="mb-0 opacity-75">Join a queue from anywhere and get notified when it's almost your turn.</p>
+    <p class="mb-0 opacity-75">Join a queue from anywhere and check your place in line.</p>
 </div>
+
+{% if active_tickets %}
+<h5 class="fw-semibold">Your active tickets</h5>
+<div class="row g-4 mb-4">
+    {% for t in active_tickets %}
+    <div class="col-md-6 col-lg-4">
+        <a href="{% url 'ticket_detail' t.pk %}" class="text-decoration-none text-reset">
+            <div class="card card-hover h-100 border-start border-4" style="border-color:var(--ql-primary)!important;"><div class="card-body p-4">
+                <div class="small text-muted">{{ t.service.name }}</div>
+                <div class="fs-2 fw-bold" style="color:var(--ql-primary)">{{ t.ticket_code }}</div>
+                <span class="badge rounded-pill text-bg-{{ t.status_badge }}">{{ t.status_label }}</span>
+                {% if t.position %}<span class="small ms-2">Position: <strong>{{ t.position }}</strong></span>{% endif %}
+            </div></div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <div class="row g-4">
     <div class="col-md-4">
         <div class="card card-hover h-100"><div class="card-body p-4">
             <div class="ql-icon indigo"><i class="bi bi-ticket-perforated"></i></div>
             <h5 class="fw-semibold">Join a Queue</h5>
-            <p class="text-muted small">Choose a service (document request, payment, etc.) and get a queue number.</p>
-            <span class="badge rounded-pill text-bg-light">Coming in Sprint 3</span>
+            <p class="text-muted small">{{ open_services }} service{{ open_services|pluralize }} open right now.</p>
+            <a href="{% url 'service_list' %}" class="btn btn-sm btn-primary">Get a Number <i class="bi bi-arrow-right"></i></a>
         </div></div>
     </div>
     <div class="col-md-4">
         <div class="card card-hover h-100"><div class="card-body p-4">
-            <div class="ql-icon cyan"><i class="bi bi-people"></i></div>
-            <h5 class="fw-semibold">My Queue Status</h5>
-            <p class="text-muted small">See your queue number, your position, and the number now being served.</p>
-            <span class="badge rounded-pill text-bg-light">Coming in Sprint 3</span>
+            <div class="ql-icon cyan"><i class="bi bi-list-check"></i></div>
+            <h5 class="fw-semibold">My Tickets</h5>
+            <p class="text-muted small">{{ active_tickets|length }} active &middot; {{ completed_count }} completed</p>
+            <a href="{% url 'my_tickets' %}" class="btn btn-sm btn-primary">View Tickets <i class="bi bi-arrow-right"></i></a>
         </div></div>
     </div>
     <div class="col-md-4">

@@ -1,11 +1,11 @@
-from django.shortcuts import render
-
-# Create your views here.
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
+
+from queues.models import QueueTicket, Service
 
 from .decorators import role_required
 from .forms import LoginForm, ProfileForm, RegisterForm
@@ -64,13 +64,26 @@ def dashboard_redirect(request):
 
 @role_required(User.Role.STUDENT)
 def student_dashboard(request):
-    return render(request, 'accounts/student_dashboard.html')
+    tickets = request.user.queue_tickets.select_related('service')
+    active = [t for t in tickets if t.is_active]
+    context = {
+        'active_tickets': active,
+        'open_services': Service.objects.filter(is_open=True).count(),
+        'completed_count': tickets.filter(status=QueueTicket.Status.COMPLETED).count(),
+    }
+    return render(request, 'accounts/student_dashboard.html', context)
 
 
 @role_required(User.Role.STAFF)
 def staff_dashboard(request):
-    students = User.objects.filter(role=User.Role.STUDENT).count()
-    return render(request, 'accounts/staff_dashboard.html', {'student_count': students})
+    today = QueueTicket.objects.filter(queue_date=timezone.localdate())
+    context = {
+        'student_count': User.objects.filter(role=User.Role.STUDENT).count(),
+        'services': Service.objects.all(),
+        'waiting_today': today.filter(status=QueueTicket.Status.WAITING).count(),
+        'served_today': today.filter(status=QueueTicket.Status.COMPLETED).count(),
+    }
+    return render(request, 'accounts/staff_dashboard.html', context)
 
 
 @login_required
